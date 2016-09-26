@@ -1,0 +1,75 @@
+﻿<Page
+    x:Class="VisualStateTriggerVisibility.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VisualStateTriggerVisibility"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:VisualStateTriggerVisibility.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:VisibilityConverter x:Key="VisibilityConverter" />
+        <converters:VisibilityConverter x:Key="InverseVisibilityConverter" Inverse="True" />
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="VisualStateGroup">
+                <VisualState x:Name="Mobile">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="320" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="EmptyStatePanel.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Desktop">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="EmptyStatePanel.Visibility" Value="{x:Bind SelectedPerson, Mode=OneWay, Converter={StaticResource InverseVisibilityConverter}}" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="ListColumn" />
+            <ColumnDefinition x:Name="DetailColumn" />
+        </Grid.ColumnDefinitions>
+        
+        <ListView Grid.Column="0"
+                  SelectedItem="{Binding SelectedPerson, Mode=TwoWay}"
+                  ItemsSource="{Binding People}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" Foreground="Black" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        
+        <Grid Grid.Column="1">
+            <StackPanel x:Name="ContentStatePanel"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding SelectedPerson, Mode=OneWay, Converter={StaticResource VisibilityConverter}}">
+                <TextBlock Text="The actual content" />
+            </StackPanel>
+            
+            <!-- Empty state panel not working by setting the visibility through a Visual State Trigger -->
+            <StackPanel x:Name="EmptyStatePanel"
+                        VerticalAlignment="Center">
+                <TextBlock Text="Look ma I'm visible" />
+            </StackPanel>
+
+            <!-- Empty state panel working by setting the visibility directly -->
+            <!--
+            <StackPanel x:Name="EmptyStatePanel"
+                        Visibility="{x:Bind SelectedPerson, Mode=OneWay, Converter={StaticResource InverseVisibilityConverter}}"
+                        VerticalAlignment="Center">
+                <TextBlock Text="Look ma I'm visible" />
+            </StackPanel>
+            -->
+        </Grid>
+    </Grid>
+</Page>
